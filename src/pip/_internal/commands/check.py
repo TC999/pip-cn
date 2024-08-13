@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 
 
 class CheckCommand(Command):
-    """Verify installed packages have compatible dependencies."""
+    """验证已安装的软件包是否具有兼容的依赖关系。"""
 
     ignore_require_venv = True
     usage = """
@@ -37,7 +37,7 @@ class CheckCommand(Command):
             version = package_set[project_name].version
             for dependency in missing[project_name]:
                 write_output(
-                    "%s %s requires %s, which is not installed.",
+                    "%s %s 需要 %s，而 %s 尚未安装。",
                     project_name,
                     version,
                     dependency[0],
@@ -47,7 +47,7 @@ class CheckCommand(Command):
             version = package_set[project_name].version
             for dep_name, dep_version, req in conflicting[project_name]:
                 write_output(
-                    "%s %s has requirement %s, but you have %s %s.",
+                    "%s %s 有 %s 的要求，但您有 %s %s。",
                     project_name,
                     version,
                     req,
@@ -56,12 +56,12 @@ class CheckCommand(Command):
                 )
         for package in unsupported:
             write_output(
-                "%s %s is not supported on this platform",
+                "此平台不支持 %s %s",
                 package.raw_name,
                 package.version,
             )
         if missing or conflicting or parsing_probs or unsupported:
             return ERROR
         else:
-            write_output("No broken requirements found.")
+            write_output("未发现破坏要求。")
             return SUCCESS

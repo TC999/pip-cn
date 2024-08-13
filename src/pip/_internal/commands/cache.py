@@ -14,17 +14,17 @@ logger = getLogger(__name__)
 
 class CacheCommand(Command):
     """
-    Inspect and manage pip's wheel cache.
+    检查和管理 pip 的 wheel 缓存。
 
-    Subcommands:
+    子命令：
 
-    - dir: Show the cache directory.
-    - info: Show information about the cache.
-    - list: List filenames of packages stored in the cache.
-    - remove: Remove one or more package from the cache.
-    - purge: Remove all items from the cache.
+    - dir: 显示缓存目录。
+    - info: 显示缓存的信息。
+    - list: 列出存储在缓存中的包文件名。
+    - remove: 从缓存中移除一个或多个包。
+    - purge: 移除缓存中的所有项目。
 
-    ``<pattern>`` can be a glob expression or a package name.
+    ``<pattern>`` 可以是一个 glob 表达式或包名。
     """
 
     ignore_require_venv = True
@@ -43,7 +43,7 @@ class CacheCommand(Command):
             dest="list_format",
             default="human",
             choices=("human", "abspath"),
-            help="Select the output format among: human (default) or abspath",
+            help="从以下格式中选择输出格式： human (默认) or abspath",
         )
 
         self.parser.insert_option_group(0, self.cmd_opts)
@@ -58,13 +58,13 @@ class CacheCommand(Command):
         }
 
         if not options.cache_dir:
-            logger.error("pip cache commands can not function since cache is disabled.")
+            logger.error("pip 缓存已禁用，缓存命令无法运行。")
             return ERROR
 
         # Determine action
         if not args or args[0] not in handlers:
             logger.error(
-                "Need an action (%s) to perform.",
+                "需要执行一个操作 (%s)。",
                 ", ".join(sorted(handlers)),
             )
             return ERROR
@@ -82,13 +82,13 @@ class CacheCommand(Command):
 
     def get_cache_dir(self, options: Values, args: List[Any]) -> None:
         if args:
-            raise CommandError("Too many arguments")
+            raise CommandError("太多冲突")
 
         logger.info(options.cache_dir)
 
     def get_cache_info(self, options: Values, args: List[Any]) -> None:
         if args:
-            raise CommandError("Too many arguments")
+            raise CommandError("太多冲突")
 
         num_http_files = len(self._find_http_files(options))
         num_packages = len(self._find_wheels(options, "*"))
@@ -105,13 +105,14 @@ class CacheCommand(Command):
         message = (
             textwrap.dedent(
                 """
-                    Package index page cache location (pip v23.3+): {http_cache_location}
-                    Package index page cache location (older pips): {old_http_cache_location}
-                    Package index page cache size: {http_cache_size}
-                    Number of HTTP files: {num_http_files}
-                    Locally built wheels location: {wheels_cache_location}
-                    Locally built wheels size: {wheels_cache_size}
-                    Number of locally built wheels: {package_count}
+                    软件包索引页面缓存位置(pip v23.3+): {http_cache_location}
+                    软件包索引页面缓存位置(旧版 pip): {old_http_cache_location}
+                    软件包索引页面缓存大小: {http_cache_size}
+                    HTTP 文件数量: {num_http_files}
+                    本地构建的 whl 文件位置: {wheels_cache_location}
+                    本地构建的 whl 文件大小: {wheels_cache_size}
+                    本地构建的 whl 文件数量: {package_count}
+
                 """  # noqa: E501
             )
             .format(
@@ -130,7 +131,7 @@ class CacheCommand(Command):
 
     def list_cache_items(self, options: Values, args: List[Any]) -> None:
         if len(args) > 1:
-            raise CommandError("Too many arguments")
+            raise CommandError("太多冲突")
 
         if args:
             pattern = args[0]
@@ -145,7 +146,7 @@ class CacheCommand(Command):
 
     def format_for_human(self, files: List[str]) -> None:
         if not files:
-            logger.info("No locally built wheels cached.")
+            logger.info("没有本地构建的 whl 缓存。")
             return
 
         results = []
@@ -153,7 +154,7 @@ class CacheCommand(Command):
             wheel = os.path.basename(filename)
             size = filesystem.format_file_size(filename)
             results.append(f" - {wheel} ({size})")
-        logger.info("Cache contents:\n")
+        logger.info("缓存内容：\n")
         logger.info("\n".join(sorted(results)))
 
     def format_for_abspath(self, files: List[str]) -> None:
@@ -162,14 +163,14 @@ class CacheCommand(Command):
 
     def remove_cache_items(self, options: Values, args: List[Any]) -> None:
         if len(args) > 1:
-            raise CommandError("Too many arguments")
+            raise CommandError("太多冲突")
 
         if not args:
-            raise CommandError("Please provide a pattern")
+            raise CommandError("请提供模式")
 
         files = self._find_wheels(options, args[0])
 
-        no_matching_msg = "No matching packages"
+        no_matching_msg = "无匹配软件包"
         if args[0] == "*":
             # Only fetch http files if no specific pattern given
             files += self._find_http_files(options)
@@ -182,12 +183,12 @@ class CacheCommand(Command):
 
         for filename in files:
             os.unlink(filename)
-            logger.verbose("Removed %s", filename)
-        logger.info("Files removed: %s", len(files))
+            logger.verbose("删除 %s", filename)
+        logger.info("文件删除: %s", len(files))
 
     def purge_cache(self, options: Values, args: List[Any]) -> None:
         if args:
-            raise CommandError("Too many arguments")
+            raise CommandError("太多冲突")
 
         return self.remove_cache_items(options, ["*"])
 

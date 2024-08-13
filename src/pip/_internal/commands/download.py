@@ -17,15 +17,14 @@ logger = logging.getLogger(__name__)
 
 class DownloadCommand(RequirementCommand):
     """
-    Download packages from:
-
-    - PyPI (and other indexes) using requirement specifiers.
-    - VCS project urls.
-    - Local project directories.
-    - Local or remote source archives.
-
-    pip also supports downloading from "requirements files", which provide
-    an easy way to specify a whole environment to be downloaded.
+    从以下来源下载软件包：
+    
+    - 使用需求规范从 PyPI（及其他索引）下载。
+    - 从版本控制系统（VCS）项目网址下载。
+    - 从本地项目目录。
+    - 从本地或远程的源代码压缩包下载。
+    
+    pip 还支持从“需求文件”下载，这提供了一种简单的方法来指定要下载的整个环境。
     """
 
     usage = """
@@ -61,7 +60,7 @@ class DownloadCommand(RequirementCommand):
             dest="download_dir",
             metavar="dir",
             default=os.curdir,
-            help="Download packages into <dir>.",
+            help="下载软件包到 <dir>.",
         )
 
         cmdoptions.add_target_python_options(self.cmd_opts)
@@ -141,6 +140,6 @@ class DownloadCommand(RequirementCommand):
         preparer.prepare_linked_requirements_more(requirement_set.requirements.values())
 
         if downloaded:
-            write_output("Successfully downloaded %s", " ".join(downloaded))
+            write_output("下载成功 %s", " ".join(downloaded))
 
         return SUCCESS

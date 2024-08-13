@@ -21,27 +21,20 @@ logger = logging.getLogger(__name__)
 
 class ConfigurationCommand(Command):
     """
-    Manage local and global configuration.
+    管理本地和全局配置。
 
-    Subcommands:
+    子命令：
 
-    - list: List the active configuration (or from the file specified)
-    - edit: Edit the configuration file in an editor
-    - get: Get the value associated with command.option
-    - set: Set the command.option=value
-    - unset: Unset the value associated with command.option
-    - debug: List the configuration files and values defined under them
-
-    Configuration keys should be dot separated command and option name,
-    with the special prefix "global" affecting any command. For example,
-    "pip config set global.index-url https://example.org/" would configure
-    the index url for all commands, but "pip config set download.timeout 10"
-    would configure a 10 second timeout only for "pip download" commands.
-
-    If none of --user, --global and --site are passed, a virtual
-    environment configuration file is used if one is active and the file
-    exists. Otherwise, all modifications happen to the user file by
-    default.
+    - list：列出活动配置（或指定文件中的配置）
+    - edit：在编辑器中编辑配置文件
+    - get：获取与 command.option 关联的值
+    - set：设置 command.option=value
+    - unset：取消与 command.option 关联的值
+    - debug：列出配置文件及其定义的值
+    
+    配置键应由命令和选项名称组成，使用点号分隔，并且具有特殊前缀 "global" 以影响所有命令。例如，"pip config set global.index-url https://example.org/" 将为所有命令配置索引 URL，而 "pip config set download.timeout 10" 仅为 "pip download" 命令配置 10 秒超时。
+    
+    如果没有传递 --user、--global 和 --site 选项，则会使用虚拟环境配置文件（如果它是活动的且文件存在）。否则，默认情况下所有修改都会应用于用户文件。
     """
 
     ignore_require_venv = True
@@ -62,8 +55,7 @@ class ConfigurationCommand(Command):
             action="store",
             default=None,
             help=(
-                "Editor to use to edit the file. Uses VISUAL or EDITOR "
-                "environment variables if not provided."
+                "用于编辑文件的编辑器。如果未提供，将使用 VISUAL 或 EDITOR 环境变量。"
             ),
         )
 
@@ -72,7 +64,7 @@ class ConfigurationCommand(Command):
             dest="global_file",
             action="store_true",
             default=False,
-            help="Use the system-wide configuration file only",
+            help="仅使用全系统配置文件",
         )
 
         self.cmd_opts.add_option(
@@ -80,7 +72,7 @@ class ConfigurationCommand(Command):
             dest="user_file",
             action="store_true",
             default=False,
-            help="Use the user configuration file only",
+            help="仅使用用户配置文件",
         )
 
         self.cmd_opts.add_option(
@@ -88,7 +80,7 @@ class ConfigurationCommand(Command):
             dest="site_file",
             action="store_true",
             default=False,
-            help="Use the current environment configuration file only",
+            help="仅使用当前环境配置文件",
         )
 
         self.parser.insert_option_group(0, self.cmd_opts)
@@ -106,7 +98,7 @@ class ConfigurationCommand(Command):
         # Determine action
         if not args or args[0] not in handlers:
             logger.error(
-                "Need an action (%s) to perform.",
+                "需要执行一个操作 (%s)。",
                 ", ".join(sorted(handlers)),
             )
             return ERROR
@@ -164,8 +156,7 @@ class ConfigurationCommand(Command):
             return file_options[0]
 
         raise PipError(
-            "Need exactly one file to operate upon "
-            "(--user, --site, --global) to perform."
+            "需要指定一个文件进行操作 (--user、--site、--global)。"
         )
 
     def list_values(self, options: Values, args: List[str]) -> None:
@@ -193,7 +184,7 @@ class ConfigurationCommand(Command):
         self._save_configuration()
 
     def list_config_values(self, options: Values, args: List[str]) -> None:
-        """List config key-value pairs across different config files"""
+        """列出不同配置文件中的配置键值对"""
         self._get_n_args(args, "debug", n=0)
 
         self.print_env_var_values()
@@ -209,13 +200,13 @@ class ConfigurationCommand(Command):
                         self.print_config_file_values(variant)
 
     def print_config_file_values(self, variant: Kind) -> None:
-        """Get key-value pairs from the file of a variant"""
+        """从变量文件中获取键值对"""
         for name, value in self.configuration.get_values_in_config(variant).items():
             with indent_log():
                 write_output("%s: %s", name, value)
 
     def print_env_var_values(self) -> None:
-        """Get key-values pairs present as environment variables"""
+        """获取作为环境变量存在的键值对"""
         write_output("%s:", "env_var")
         with indent_log():
             for key, value in sorted(self.configuration.get_environ_vars()):
@@ -227,12 +218,12 @@ class ConfigurationCommand(Command):
 
         fname = self.configuration.get_file_to_edit()
         if fname is None:
-            raise PipError("Could not determine appropriate file.")
+            raise PipError("无法确定合适的文件。")
         elif '"' in fname:
             # This shouldn't happen, unless we see a username like that.
             # If that happens, we'd appreciate a pull request fixing this.
             raise PipError(
-                f'Can not open an editor for a file name containing "\n{fname}'
+                f'无法为包含以下内容的文件名打开编辑器 "\n{fname}'
             )
 
         try:
@@ -242,14 +233,14 @@ class ConfigurationCommand(Command):
                 e.filename = editor
             raise
         except subprocess.CalledProcessError as e:
-            raise PipError(f"Editor Subprocess exited with exit code {e.returncode}")
+            raise PipError(f"编辑器子进程以退出代码退出 {e.returncode}")
 
     def _get_n_args(self, args: List[str], example: str, n: int) -> Any:
-        """Helper to make sure the command got the right number of arguments"""
+        """帮助确保命令获得正确的参数数"""
         if len(args) != n:
             msg = (
-                f"Got unexpected number of arguments, expected {n}. "
-                f'(example: "{get_prog()} config {example}")'
+                f"参数数量出乎意料，预计为 {n}。 "
+                f'(示例: "{get_prog()} config {example}")'
             )
             raise PipError(msg)
 
@@ -265,9 +256,9 @@ class ConfigurationCommand(Command):
             self.configuration.save()
         except Exception:
             logger.exception(
-                "Unable to save configuration. Please report this as a bug."
+                "无法保存配置。请将此作为错误报告。"
             )
-            raise PipError("Internal Error.")
+            raise PipError("内部错误。")
 
     def _determine_editor(self, options: Values) -> str:
         if options.editor is not None:
@@ -277,4 +268,4 @@ class ConfigurationCommand(Command):
         elif "EDITOR" in os.environ:
             return os.environ["EDITOR"]
         else:
-            raise PipError("Could not determine editor to use.")
+            raise PipError("无法确定使用的编辑器。")

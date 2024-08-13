@@ -25,13 +25,13 @@ logger = logging.getLogger(__name__)
 
 class UninstallCommand(Command, SessionCommandMixin):
     """
-    Uninstall packages.
+    卸载软件包
 
-    pip is able to uninstall most installed packages. Known exceptions are:
+    pip 可以卸载大部分已安装的软件包。已知的例外情况包括
 
-    - Pure distutils packages installed with ``python setup.py install``, which
-      leave behind no metadata to determine what files were installed.
-    - Script wrappers installed by ``python setup.py develop``.
+    - 使用 ``python setup.py install`` 安装的纯 distutils 软件包。
+      它不会留下元数据来确定安装了哪些文件。
+    - 通过 ``python setup.py develop`` 安装的脚本封装包。
     """
 
     usage = """
@@ -47,8 +47,7 @@ class UninstallCommand(Command, SessionCommandMixin):
             default=[],
             metavar="file",
             help=(
-                "Uninstall all the packages listed in the given requirements "
-                "file.  This option can be used multiple times."
+                "卸载给定需求文件中列出的所有软件包。此选项可以多次使用。"
             ),
         )
         self.cmd_opts.add_option(
@@ -56,7 +55,7 @@ class UninstallCommand(Command, SessionCommandMixin):
             "--yes",
             dest="yes",
             action="store_true",
-            help="Don't ask for confirmation of uninstall deletions.",
+            help="卸载或删除时不要求确认。",
         )
         self.cmd_opts.add_option(cmdoptions.root_user_action())
         self.cmd_opts.add_option(cmdoptions.override_externally_managed())
@@ -75,9 +74,8 @@ class UninstallCommand(Command, SessionCommandMixin):
                 reqs_to_uninstall[canonicalize_name(req.name)] = req
             else:
                 logger.warning(
-                    "Invalid requirement: %r ignored -"
-                    " the uninstall command expects named"
-                    " requirements.",
+                    "无效的需求：%r 被忽略 -"
+                    "卸载命令需要指定的需求名称:",
                     name,
                 )
         for filename in options.requirements:
@@ -91,7 +89,7 @@ class UninstallCommand(Command, SessionCommandMixin):
                     reqs_to_uninstall[canonicalize_name(req.name)] = req
         if not reqs_to_uninstall:
             raise InstallationError(
-                f"You must give at least one requirement to {self.name} (see "
+                f"您必须为 {self.name} 提供至少一项要求 (使用 "
                 f'"pip help {self.name}")'
             )
 
