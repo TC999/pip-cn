@@ -52,8 +52,6 @@ logger = getLogger(__name__)
 
 class InstallCommand(RequirementCommand):
     """
-    这段内容的翻译如下：
-    
     从以下来源安装软件包：
     
     - 使用需求规范从 PyPI（及其他索引）安装。
